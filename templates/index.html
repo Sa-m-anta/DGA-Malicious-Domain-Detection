@@ -1,0 +1,4622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>DGA Domain Detector</title>
+
+
+<style>
+
+/* ==========================================================
+   GLOBAL
+========================================================== */
+
+:root {
+    --background: #020817;
+    --panel: #06162d;
+
+    --border: rgba(54, 145, 255, 0.52);
+
+    --blue: #258cff;
+    --blue-light: #4da6ff;
+
+    --green: #20dc9b;
+    --green-light: #4be7b4;
+
+    --red: #ff3d60;
+    --red-light: #ff6680;
+
+    --yellow: #ffb538;
+
+    --white: #f6faff;
+    --text: #dce8f6;
+    --muted: #a8bad0;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 50% -15%,
+            rgba(20, 111, 255, 0.18),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 100% 30%,
+            rgba(0, 190, 255, 0.08),
+            transparent 32%
+        ),
+        var(--background);
+
+    color: var(--white);
+
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    overflow-x: hidden;
+}
+
+
+body::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(
+            rgba(39, 108, 187, 0.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(39, 108, 187, 0.04) 1px,
+            transparent 1px
+        );
+
+    background-size: 44px 44px;
+}
+
+
+button,
+input {
+    font: inherit;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+.page-shell {
+    width: min(
+        1280px,
+        calc(100% - 36px)
+    );
+
+    margin: 0 auto;
+
+    padding: 25px 0 20px;
+}
+
+
+/* ==========================================================
+   GENERAL PANEL
+========================================================== */
+
+.panel {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(7, 25, 51, 0.97),
+            rgba(3, 15, 33, 0.97)
+        );
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 13px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        0 15px 40px rgba(0, 0, 0, 0.27),
+        0 0 24px rgba(23, 108, 235, 0.06);
+}
+
+
+.panel-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    color: #f2f7ff;
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+
+.panel-heading .icon {
+    color: var(--blue);
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.hero {
+    text-align: center;
+
+    padding:
+        20px
+        10px
+        30px;
+}
+
+
+.hero-wrap {
+    position: relative;
+}
+
+
+.hero-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+}
+
+
+.shield {
+    width: 58px;
+    height: 68px;
+
+    display: grid;
+    place-items: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #72ccff,
+            #138cff 52%,
+            #074aa9
+        );
+
+    clip-path:
+        polygon(
+            50% 0,
+            90% 14%,
+            90% 58%,
+            76% 79%,
+            50% 100%,
+            24% 79%,
+            10% 58%,
+            10% 14%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 17px rgba(31, 146, 255, 0.48)
+        );
+}
+
+
+.shield::after {
+    content: "";
+
+    width: 40px;
+    height: 49px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.55);
+
+    clip-path:
+        polygon(
+            50% 0,
+            90% 14%,
+            90% 58%,
+            76% 79%,
+            50% 100%,
+            24% 79%,
+            10% 58%,
+            10% 14%
+        );
+}
+
+
+.hero h1 {
+    font-size:
+        clamp(
+            34px,
+            4vw,
+            55px
+        );
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    letter-spacing: -1.5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #3298ff 55%,
+            #22caee
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+
+.hero-subtitle {
+    max-width: 720px;
+
+    margin:
+        15px
+        auto
+        19px;
+
+    color: #c5d4e6;
+
+    font-size: 17px;
+
+    line-height: 1.5;
+}
+
+
+.engine-status {
+    width: max-content;
+
+    margin: 0 auto;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding:
+        9px
+        16px;
+
+    border:
+        1px solid
+        rgba(32, 220, 155, 0.28);
+
+    border-radius: 100px;
+
+    background:
+        rgba(8, 42, 42, 0.55);
+
+    color: #d3eee6;
+
+    font-size: 14px;
+}
+
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 13px var(--green);
+}
+
+
+/* ==========================================================
+   COMPACT HEADER
+========================================================== */
+
+.hero.compact {
+    padding:
+        0
+        3px
+        18px;
+}
+
+
+.hero.compact .hero-wrap {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.hero.compact .hero-inner {
+    justify-content: flex-start;
+}
+
+
+.hero.compact .shield {
+    width: 38px;
+    height: 46px;
+}
+
+
+.hero.compact .shield::after {
+    width: 26px;
+    height: 33px;
+}
+
+
+.hero.compact h1 {
+    font-size: 29px;
+
+    letter-spacing: -0.6px;
+}
+
+
+.hero.compact .hero-subtitle {
+    margin:
+        6px
+        0
+        0;
+
+    text-align: left;
+
+    font-size: 13px;
+}
+
+
+.hero.compact .engine-status {
+    margin: 0;
+}
+
+
+/* ==========================================================
+   SEARCH PANEL
+========================================================== */
+
+.search-panel {
+    width: 100%;
+    max-width: 1040px;
+
+    margin:
+        0
+        auto
+        25px;
+
+    padding:
+        30px
+        38px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        rgba(51, 145, 255, 0.78);
+
+    box-shadow:
+        0 0 34px rgba(26, 113, 255, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+
+.has-result .search-panel {
+    width: 100%;
+
+    max-width: none;
+
+    margin-bottom: 16px;
+
+    padding:
+        20px
+        24px;
+
+    text-align: left;
+}
+
+
+.search-title {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 7px;
+
+    color: #f4f8ff;
+
+    font-size: 23px;
+
+    font-weight: 900;
+}
+
+
+.has-result .search-title {
+    justify-content: flex-start;
+
+    margin-bottom: 15px;
+
+    font-size: 16px;
+}
+
+
+.search-description {
+    margin-bottom: 22px;
+
+    color: #b4c4d7;
+
+    font-size: 15px;
+}
+
+
+.has-result .search-description {
+    display: none;
+}
+
+
+.domain-form {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.input-wrap {
+    flex: 1;
+}
+
+
+.domain-input {
+    width: 100%;
+
+    height: 56px;
+
+    padding:
+        0
+        20px;
+
+    outline: none;
+
+    border:
+        1.5px solid
+        rgba(48, 145, 255, 0.72);
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(14, 40, 72, 0.98),
+            rgba(8, 27, 51, 0.98)
+        );
+
+    color: #f8fbff;
+
+    font-size: 16px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        inset 0 0 18px rgba(37, 140, 255, 0.04),
+        0 0 15px rgba(37, 140, 255, 0.09);
+
+    transition: 0.2s ease;
+}
+
+
+.domain-input::placeholder {
+    color: #9cafc5;
+}
+
+
+.domain-input:hover {
+    border-color:
+        rgba(75, 166, 255, 0.88);
+}
+
+
+.domain-input:focus {
+    border-color: #3c9cff;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(17, 49, 88, 1),
+            rgba(9, 31, 59, 1)
+        );
+
+    box-shadow:
+        0 0 0 3px rgba(37, 140, 255, 0.12),
+        0 0 24px rgba(37, 140, 255, 0.18);
+}
+
+
+.analyze-button {
+    min-width: 220px;
+
+    height: 56px;
+
+    border:
+        1px solid
+        rgba(92, 173, 255, 0.25);
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2b94ff,
+            #126de9
+        );
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 10px 26px rgba(20, 112, 245, 0.25);
+
+    transition: 0.2s ease;
+}
+
+
+.analyze-button:hover {
+    transform:
+        translateY(-1px);
+
+    filter:
+        brightness(1.08);
+
+    box-shadow:
+        0 12px 30px rgba(20, 112, 245, 0.34);
+}
+
+
+.analyze-button:disabled {
+    opacity: 0.65;
+
+    cursor: wait;
+}
+
+
+.search-note {
+    margin-top: 16px;
+
+    color: #9eb2ca;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.error-box {
+    margin-bottom: 16px;
+
+    padding:
+        15px
+        19px;
+
+    border:
+        1px solid
+        rgba(255, 61, 96, 0.5);
+
+    border-radius: 8px;
+
+    background:
+        rgba(101, 15, 35, 0.30);
+
+    color: #ff9daf;
+}
+
+
+/* ==========================================================
+   HOME STATS
+========================================================== */
+
+.home-stats {
+    width: 100%;
+
+    max-width: 1040px;
+
+    margin:
+        0
+        auto
+        18px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+}
+
+
+.home-stat {
+    min-height: 155px;
+
+    padding: 25px;
+
+    display: flex;
+
+    gap: 18px;
+
+    align-items: flex-start;
+}
+
+
+.stat-symbol {
+    width: 68px;
+    height: 68px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        1px solid
+        rgba(37, 140, 255, 0.40);
+
+    border-radius: 11px;
+
+    background:
+        rgba(30, 128, 255, 0.10);
+
+    color: var(--blue-light);
+
+    font-weight: 900;
+}
+
+
+.stat-top {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 12px;
+
+    margin-bottom: 9px;
+}
+
+
+.stat-number {
+    color: var(--blue-light);
+
+    font-size: 34px;
+
+    font-weight: 900;
+}
+
+
+.home-stat:nth-child(3)
+.stat-number {
+    font-size: 20px;
+}
+
+
+.stat-label {
+    color: #f0f5fc;
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+
+.stat-copy {
+    color: #b0c0d4;
+
+    font-size: 14px;
+
+    line-height: 1.55;
+}
+
+
+/* ==========================================================
+   HOME MODEL LIST
+========================================================== */
+
+.detector-panel {
+    width: 100%;
+
+    max-width: 1040px;
+
+    margin: 0 auto;
+
+    padding: 24px;
+}
+
+
+.detector-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, 1fr);
+}
+
+
+.detector-item {
+    padding:
+        8px
+        12px;
+
+    text-align: center;
+
+    border-right:
+        1px solid
+        rgba(83, 130, 181, 0.24);
+}
+
+
+.detector-item:last-child {
+    border-right: 0;
+}
+
+
+.detector-badge {
+    width: 60px;
+    height: 60px;
+
+    margin:
+        0
+        auto
+        12px;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        2px solid
+        var(--blue);
+
+    border-radius: 50%;
+
+    background:
+        rgba(37, 140, 255, 0.07);
+
+    color: var(--blue-light);
+
+    font-weight: 900;
+
+    box-shadow:
+        0 0 16px rgba(37, 140, 255, 0.14);
+}
+
+
+.detector-name {
+    color: #e2edf9;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+}
+
+
+/* ==========================================================
+   OVERALL RESULT
+========================================================== */
+
+.result-panel {
+    margin-bottom: 16px;
+
+    padding:
+        22px
+        28px
+        30px;
+}
+
+
+.overall-grid {
+    display: grid;
+
+    grid-template-columns:
+        220px
+        minmax(0, 1fr)
+        430px;
+
+    gap: 26px;
+
+    align-items: center;
+}
+
+
+/* ==========================================================
+   SCORE RING
+========================================================== */
+
+.score-ring {
+    --score: 0%;
+
+    width: 180px;
+    height: 180px;
+
+    position: relative;
+
+    margin: auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            var(--red)
+            var(--score),
+            rgba(73, 99, 132, 0.20)
+            0
+        );
+
+    box-shadow:
+        0 0 28px rgba(255, 61, 96, 0.18);
+}
+
+
+.score-ring.safe {
+    background:
+        conic-gradient(
+            var(--green)
+            var(--score),
+            rgba(73, 99, 132, 0.20)
+            0
+        );
+
+    box-shadow:
+        0 0 28px rgba(32, 220, 155, 0.16);
+}
+
+
+.score-ring::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 14px;
+
+    border-radius: 50%;
+
+    background: #07162c;
+}
+
+
+.score-center {
+    position: relative;
+
+    z-index: 1;
+
+    text-align: center;
+}
+
+
+.score-value {
+    font-size: 38px;
+
+    font-weight: 900;
+}
+
+
+.score-label {
+    margin-top: 3px;
+
+    color: #a7b9cd;
+
+    font-size: 14px;
+}
+
+
+/* ==========================================================
+   MAIN RESULT
+========================================================== */
+
+.domain-result {
+    margin-bottom: 10px;
+
+    color: #f4f8ff;
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+    overflow-wrap: anywhere;
+}
+
+
+.decision {
+    margin-bottom: 9px;
+
+    color: var(--red);
+
+    font-size: 25px;
+
+    font-weight: 900;
+}
+
+
+.decision.safe {
+    color: var(--green);
+}
+
+
+.decision-copy {
+    max-width: 550px;
+
+    color: #b4c4d6;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+.consensus-box {
+    width: max-content;
+
+    max-width: 100%;
+
+    margin-top: 14px;
+
+    padding:
+        12px
+        16px;
+
+    border:
+        1px solid
+        rgba(37, 140, 255, 0.28);
+
+    border-radius: 7px;
+
+    background:
+        rgba(18, 72, 124, 0.18);
+
+    color: #b8cbde;
+
+    font-size: 13px;
+}
+
+
+.consensus-box strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--blue-light);
+
+    font-size: 14px;
+}
+
+
+.engine-copy {
+    margin-top: 11px;
+
+    color: #98adc5;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   DETECTION CONFIDENCE
+========================================================== */
+
+/*
+   UPDATED:
+   Whole Detection Confidence block moved slightly RIGHT.
+*/
+
+.confidence-box {
+    width: 410px;
+
+    max-width: 100%;
+
+    min-width: 0;
+
+    justify-self: end;
+
+    transform:
+        translateX(55px);
+}
+
+
+/* ==========================================================
+   CONFIDENCE TITLE
+========================================================== */
+
+.confidence-title {
+    width: 190px;
+
+    margin-left: 30px;
+
+    margin-bottom: 17px;
+
+    text-align: center;
+
+    color: #f1f6fc;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* ==========================================================
+   CONFIDENCE LAYOUT
+========================================================== */
+
+.confidence-layout {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        190px
+        145px;
+
+    column-gap: 24px;
+
+    align-items: start;
+
+    justify-content: start;
+
+    padding-left: 30px;
+}
+
+
+/* ==========================================================
+   RADAR COLUMN
+========================================================== */
+
+.radar-column {
+    width: 190px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+}
+
+
+/* ==========================================================
+   RADAR
+========================================================== */
+
+.radar {
+    width: 176px;
+    height: 176px;
+
+    position: relative;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        2px solid
+        rgba(255, 61, 96, 0.56);
+
+    border-radius: 50%;
+
+    background:
+        repeating-radial-gradient(
+            circle,
+            rgba(255, 61, 96, 0.22) 0,
+            rgba(255, 61, 96, 0.22) 1px,
+            transparent 1px,
+            transparent 26px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255, 61, 96, 0.19),
+            rgba(255, 61, 96, 0.04) 58%,
+            transparent 73%
+        );
+
+    box-shadow:
+        inset 0 0 38px rgba(255, 61, 96, 0.15),
+        0 0 20px rgba(255, 61, 96, 0.26),
+        0 0 46px rgba(255, 61, 96, 0.14);
+}
+
+
+.radar.safe {
+    border-color:
+        rgba(32, 220, 155, 0.62);
+
+    background:
+        repeating-radial-gradient(
+            circle,
+            rgba(32, 220, 155, 0.21) 0,
+            rgba(32, 220, 155, 0.21) 1px,
+            transparent 1px,
+            transparent 26px
+        ),
+        radial-gradient(
+            circle,
+            rgba(32, 220, 155, 0.18),
+            rgba(32, 220, 155, 0.04) 58%,
+            transparent 73%
+        );
+
+    box-shadow:
+        inset 0 0 38px rgba(32, 220, 155, 0.15),
+        0 0 20px rgba(32, 220, 155, 0.26),
+        0 0 46px rgba(32, 220, 155, 0.14);
+}
+
+
+/* OUTER RADAR RING */
+
+.radar::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -8px;
+
+    border:
+        1px solid
+        rgba(255, 61, 96, 0.24);
+
+    border-radius: 50%;
+}
+
+
+.radar.safe::before {
+    border-color:
+        rgba(32, 220, 155, 0.26);
+}
+
+
+/* HORIZONTAL LINE */
+
+.radar::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 50%;
+
+    height: 1px;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+}
+
+
+/* VERTICAL LINE */
+
+.radar-cross {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    left: 50%;
+
+    width: 1px;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+}
+
+
+/* ==========================================================
+   RADAR CENTER
+========================================================== */
+
+.radar-core {
+    width: 68px;
+    height: 68px;
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        2px solid
+        rgba(255, 61, 96, 0.60);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 61, 96, 0.31),
+            rgba(255, 61, 96, 0.13)
+        );
+
+    color: var(--red-light);
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 0 21px rgba(255, 61, 96, 0.30);
+}
+
+
+.radar.safe
+.radar-core {
+    border-color:
+        rgba(32, 220, 155, 0.62);
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(32, 220, 155, 0.30),
+            rgba(32, 220, 155, 0.13)
+        );
+
+    color: var(--green-light);
+
+    box-shadow:
+        0 0 21px rgba(32, 220, 155, 0.30);
+}
+
+
+/* ==========================================================
+   CURRENT RISK
+========================================================== */
+
+.current-risk-card {
+    width: 176px;
+
+    margin-top: 18px;
+
+    padding:
+        11px
+        12px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        rgba(255, 61, 96, 0.42);
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(9, 31, 58, 0.98),
+            rgba(5, 21, 42, 0.98)
+        );
+
+    box-shadow:
+        0 0 15px rgba(255, 61, 96, 0.08);
+}
+
+
+.current-risk-card.safe {
+    border-color:
+        rgba(32, 220, 155, 0.42);
+
+    box-shadow:
+        0 0 15px rgba(32, 220, 155, 0.08);
+}
+
+
+.current-risk-label {
+    margin-bottom: 4px;
+
+    color: #b8c6d8;
+
+    font-size: 11px;
+}
+
+
+.current-risk-value {
+    color: var(--red);
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.04em;
+}
+
+
+.current-risk-card.safe
+.current-risk-value {
+    color: var(--green);
+}
+
+
+/* ==========================================================
+   RISK LEVELS
+========================================================== */
+
+.risk-list {
+    width: 145px;
+
+    height: 176px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    padding:
+        5px
+        0;
+
+    margin: 0;
+}
+
+
+.risk-line {
+    width: 100%;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+    line-height: 1.35;
+}
+
+
+.risk-dot {
+    width: 9px;
+    height: 9px;
+
+    margin-top: 4px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+}
+
+
+.risk-dot.high {
+    background: var(--red);
+
+    box-shadow:
+        0 0 9px rgba(255, 61, 96, 0.72);
+}
+
+
+.risk-dot.medium {
+    background: var(--yellow);
+
+    box-shadow:
+        0 0 9px rgba(255, 181, 56, 0.72);
+}
+
+
+.risk-dot.low {
+    background: var(--green);
+
+    box-shadow:
+        0 0 9px rgba(32, 220, 155, 0.72);
+}
+
+
+.risk-name {
+    display: block;
+
+    color: #dce7f4;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.risk-range {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #9fb2c9;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   MULTI MODEL REPORT
+========================================================== */
+
+.model-report-panel {
+    margin-bottom: 16px;
+
+    padding: 22px;
+
+    border:
+        1px solid
+        rgba(51, 142, 248, 0.70);
+}
+
+
+.model-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 14px;
+}
+
+
+/* ==========================================================
+   MODEL CARD
+========================================================== */
+
+.model-card {
+    --state-color: var(--red);
+
+    position: relative;
+
+    height: 285px;
+
+    padding:
+        16px
+        18px
+        15px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    border:
+        1px solid
+        rgba(70, 143, 224, 0.48);
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            160deg,
+            rgba(9, 32, 62, 0.98),
+            rgba(4, 19, 39, 0.98)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        0 9px 24px rgba(0,0,0,0.20);
+
+    overflow: hidden;
+
+    transition: 0.2s ease;
+}
+
+
+.model-card.model-safe {
+    --state-color: var(--green);
+}
+
+
+.model-card.model-danger {
+    --state-color: var(--red);
+}
+
+
+.model-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 12%;
+    right: 12%;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--state-color),
+            transparent
+        );
+}
+
+
+.model-card:hover {
+    transform:
+        translateY(-3px);
+
+    border-color:
+        var(--state-color);
+
+    box-shadow:
+        0 14px 32px rgba(0,0,0,0.28);
+}
+
+
+/* ==========================================================
+   MODEL HEADER
+========================================================== */
+
+.model-header {
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+}
+
+
+.model-badge {
+    width: 50px;
+    height: 50px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    margin: 0;
+
+    border:
+        2px solid
+        var(--blue);
+
+    border-radius: 50%;
+
+    background:
+        rgba(37, 140, 255, 0.07);
+
+    color:
+        var(--blue-light);
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 0 16px rgba(37, 140, 255, 0.16);
+}
+
+
+.model-info {
+    width: auto;
+
+    text-align: left;
+}
+
+
+.model-title {
+    color: #f5f9ff;
+
+    font-size: 15px;
+
+    font-weight: 850;
+
+    line-height: 1.3;
+}
+
+
+.model-input {
+    margin-top: 4px;
+
+    color: #a7bad0;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   MODEL PROBABILITY CIRCLE
+========================================================== */
+
+.model-circle-wrap {
+    display: flex;
+
+    justify-content: center;
+
+    margin:
+        9px
+        0
+        5px;
+}
+
+
+.mini-ring {
+    --score: 0%;
+
+    width: 92px;
+    height: 92px;
+
+    position: relative;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            var(--state-color)
+            var(--score),
+            rgba(59, 85, 116, 0.25)
+            0
+        );
+}
+
+
+.mini-ring::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 8px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #0a1e39,
+            #06162b
+        );
+}
+
+
+.mini-ring span {
+    position: relative;
+
+    z-index: 2;
+
+    color: #ffffff;
+
+    font-size: 16px;
+
+    font-weight: 900;
+}
+
+
+/* ==========================================================
+   MODEL DECISION
+========================================================== */
+
+.model-decision {
+    margin:
+        2px
+        0
+        8px;
+
+    text-align: center;
+
+    color:
+        var(--state-color);
+
+    font-size: 17px;
+
+    font-weight: 900;
+}
+
+
+/* ==========================================================
+   MODEL PROBABILITY
+========================================================== */
+
+.model-probability-area {
+    width: 100%;
+
+    margin-top: auto;
+}
+
+
+.probability-label {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 6px;
+
+    color: #b6c6d9;
+
+    font-size: 11px;
+}
+
+
+.probability-label span:last-child {
+    color: #f3f8ff;
+
+    font-weight: 700;
+}
+
+
+.probability-track {
+    width: 100%;
+
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 50px;
+
+    background:
+        rgba(83, 108, 141, 0.25);
+}
+
+
+.probability-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        var(--state-color);
+
+    box-shadow:
+        0 0 8px
+        var(--state-color);
+}
+
+
+/* ==========================================================
+   DETAILS BUTTON
+========================================================== */
+
+.details-button {
+    width: 100%;
+
+    height: 34px;
+
+    margin-top: 10px;
+
+    border:
+        1px solid
+        rgba(62,144,240,0.42);
+
+    border-radius: 6px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0d294d,
+            #09203d
+        );
+
+    color: #e9f2fd;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+.details-button:hover {
+    background: #10335d;
+
+    border-color:
+        var(--blue);
+}
+
+
+/* ==========================================================
+   ANALYSIS GRID
+========================================================== */
+
+.analysis-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 16px;
+
+    margin-bottom: 16px;
+}
+
+
+.analysis-panel {
+    padding: 21px;
+}
+
+
+/* ==========================================================
+   FEATURE ANALYSIS
+========================================================== */
+
+.feature-summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    column-gap: 30px;
+}
+
+
+.feature-line {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        10px
+        0;
+
+    border-bottom:
+        1px solid
+        rgba(80,126,178,0.19);
+
+    color: #bac9da;
+
+    font-size: 13px;
+}
+
+
+.feature-line strong {
+    color: #f0f5fc;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+/* ==========================================================
+   REMAINING FEATURES
+========================================================== */
+
+.remaining-feature-grid {
+    display: none;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap:
+        0
+        28px;
+
+    margin-top: 4px;
+
+    padding-top: 0;
+}
+
+
+.remaining-feature-grid.show {
+    display: grid;
+}
+
+
+/* ==========================================================
+   FEATURE BUTTON
+========================================================== */
+
+.feature-toggle-wrap {
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 18px;
+}
+
+
+.feature-toggle-button {
+    min-width: 180px;
+
+    padding:
+        11px
+        18px;
+
+    border:
+        1px solid
+        rgba(55, 139, 240, 0.50);
+
+    border-radius: 7px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0d294d,
+            #09203d
+        );
+
+    color: #e8f2fd;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+.feature-toggle-button:hover {
+    background: #10335d;
+
+    border-color:
+        rgba(70, 158, 255, 0.85);
+
+    box-shadow:
+        0 0 17px rgba(37, 140, 255, 0.11);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* ==========================================================
+   MODEL COMPARISON
+========================================================== */
+
+.comparison-list {
+    display: grid;
+
+    gap: 14px;
+}
+
+
+.comparison-row {
+    --comparison-color: var(--red);
+
+    display: grid;
+
+    grid-template-columns:
+        180px
+        1fr
+        58px;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.comparison-row.safe {
+    --comparison-color:
+        var(--green);
+}
+
+
+.comparison-row.danger {
+    --comparison-color:
+        var(--red);
+}
+
+
+.comparison-name {
+    color: #bac9da;
+
+    font-size: 12px;
+}
+
+
+.comparison-track {
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 50px;
+
+    background:
+        rgba(78,101,132,0.22);
+}
+
+
+.comparison-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        var(--comparison-color);
+}
+
+
+.comparison-score {
+    text-align: right;
+
+    color: #f1f6fc;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.axis {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin:
+        9px
+        50px
+        0
+        190px;
+
+    color: #899eb6;
+
+    font-size: 10px;
+}
+
+
+.axis-label {
+    margin-top: 9px;
+
+    text-align: center;
+
+    color: #9caec3;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   BOTTOM STATUS
+========================================================== */
+
+.bottom-status {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    margin-top: 17px;
+
+    padding:
+        14px
+        0;
+
+    border-top:
+        1px solid
+        rgba(54,132,226,0.38);
+
+    border-bottom:
+        1px solid
+        rgba(54,132,226,0.28);
+}
+
+
+.bottom-item {
+    padding:
+        9px
+        22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    border-right:
+        1px solid
+        rgba(77,130,191,0.28);
+}
+
+
+.bottom-item:last-child {
+    border-right: 0;
+}
+
+
+.bottom-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        1px solid
+        rgba(37, 140, 255, 0.40);
+
+    border-radius: 8px;
+
+    color: var(--blue-light);
+
+    font-size: 12px;
+
+    font-weight: 900;
+}
+
+
+.bottom-label {
+    color: #9eb1c8;
+
+    font-size: 11px;
+}
+
+
+.bottom-value {
+    margin-top: 4px;
+
+    color: #edf4fc;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.bottom-value.success {
+    color: var(--green);
+}
+
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+.modal-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 24px;
+
+    background:
+        rgba(0,6,17,0.84);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+
+.modal-backdrop.open {
+    display: flex;
+}
+
+
+.modal {
+    width:
+        min(
+            1120px,
+            96vw
+        );
+
+    max-height: 90vh;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(56,146,255,0.65);
+
+    border-radius: 12px;
+
+    background: #06162c;
+
+    box-shadow:
+        0 35px 120px rgba(0,0,0,0.67),
+        0 0 38px rgba(20,106,235,0.12);
+}
+
+
+.modal-header {
+    padding:
+        20px
+        24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid
+        rgba(77,129,188,0.30);
+}
+
+
+.modal-title {
+    color: #f3f7fc;
+
+    font-size: 18px;
+
+    font-weight: 900;
+}
+
+
+.modal-close {
+    width: 40px;
+    height: 40px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #b4c4d6;
+
+    font-size: 29px;
+}
+
+
+.modal-body {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 18px;
+
+    padding: 19px;
+
+    max-height:
+        calc(90vh - 82px);
+
+    overflow-y: auto;
+
+    align-items: stretch;
+}
+
+
+.modal-section {
+    padding: 24px;
+
+    border:
+        1px solid
+        rgba(65,130,206,0.34);
+
+    border-radius: 8px;
+
+    background:
+        rgba(7,29,55,0.90);
+
+    height: 100%;
+    min-width: 0;
+}
+
+.modal-section-title {
+    margin-bottom: 18px;
+
+    color: #eef4fb;
+
+    font-size: 14px;
+
+    font-weight: 900;
+}
+
+
+.modal-data-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 18px;
+
+    padding:
+        13px
+        0;
+
+    border-bottom:
+        1px solid
+        rgba(79,126,180,0.20);
+
+    color: #b6c6d8;
+
+    font-size: 14px;
+}
+
+
+.modal-data-row strong {
+    color: #f0f5fb;
+}
+
+
+#modalPrediction.modal-safe {
+    color: var(--green);
+}
+
+
+#modalPrediction.modal-danger {
+    color: var(--red);
+}
+
+
+.signal-list {
+    display: grid;
+
+    gap: 14px;
+
+    color: #c1cedd;
+
+    font-size: 14px;
+
+    line-height: 1.55;
+}
+
+
+.signal-list li {
+    position: relative;
+
+    padding-left: 24px;
+
+    list-style: none;
+}
+
+
+.signal-list li::before {
+    content: "✓";
+
+    position: absolute;
+
+    left: 0;
+
+    color: var(--blue-light);
+
+    font-weight: 900;
+}
+
+
+.signal-note {
+    margin-top: 20px;
+
+    padding:
+        13px
+        15px;
+
+    border:
+        1px solid
+        rgba(65,126,196,0.25);
+
+    border-radius: 7px;
+
+    background:
+        rgba(13,43,76,0.55);
+
+    color: #a8bad0;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.footer {
+    padding:
+        22px
+        10px
+        8px;
+
+    text-align: center;
+
+    color: #91a6bf;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================================
+   LARGE TABLET
+========================================================== */
+
+@media(max-width: 1160px) {
+
+    .overall-grid {
+        grid-template-columns:
+            210px
+            minmax(0,1fr);
+    }
+
+
+    .confidence-box {
+        grid-column:
+            1 / -1;
+
+        width: 410px;
+
+        max-width: 100%;
+
+        justify-self: center;
+
+        margin-top: 20px;
+
+        transform: none;
+    }
+
+
+    .model-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+
+
+    .analysis-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+/* ==========================================================
+   SMALL TABLET
+========================================================== */
+
+@media(max-width: 850px) {
+
+    .home-stats {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .detector-list {
+        grid-template-columns:
+            repeat(3,1fr);
+    }
+
+
+    .bottom-status {
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media(max-width: 720px) {
+
+    .page-shell {
+        width:
+            calc(100% - 20px);
+    }
+
+
+    .hero.compact .hero-wrap {
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+    }
+
+
+    .search-panel {
+        padding:
+            24px
+            18px;
+    }
+
+
+    .domain-form {
+        flex-direction:
+            column;
+    }
+
+
+    .analyze-button {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+
+    .detector-list {
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .overall-grid {
+        grid-template-columns:
+            1fr;
+
+        text-align:
+            center;
+    }
+
+
+    .consensus-box {
+        margin-left: auto;
+
+        margin-right: auto;
+    }
+
+
+    .confidence-box {
+        width: 390px;
+
+        max-width: 100%;
+
+        margin-left: auto;
+
+        margin-right: auto;
+
+        transform: none;
+    }
+
+
+    .confidence-title {
+        margin-left: 15px;
+    }
+
+
+    .confidence-layout {
+        padding-left: 15px;
+
+        grid-template-columns:
+            190px
+            135px;
+
+        column-gap: 12px;
+    }
+
+
+    .risk-list {
+        width: 135px;
+    }
+
+
+    .model-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .model-card {
+        height: auto;
+
+        min-height: 275px;
+    }
+
+
+    .feature-summary-grid,
+    .remaining-feature-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .comparison-row {
+        grid-template-columns:
+            115px
+            1fr
+            50px;
+    }
+
+
+    .axis {
+        margin-left: 125px;
+    }
+
+
+    .bottom-status {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .modal {
+        width: 97vw;
+    }
+
+
+    .modal-body {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+/* ==========================================================
+   VERY SMALL MOBILE
+========================================================== */
+
+@media(max-width: 430px) {
+
+    .confidence-box {
+        width: 100%;
+
+        transform: none;
+    }
+
+
+    .confidence-title {
+        width: 100%;
+
+        margin-left: 0;
+
+        text-align: center;
+    }
+
+
+    .confidence-layout {
+        grid-template-columns:
+            1fr;
+
+        padding-left: 0;
+
+        row-gap: 22px;
+
+        justify-items: center;
+    }
+
+
+    .risk-list {
+        width: 176px;
+
+        height: auto;
+
+        gap: 15px;
+
+        padding: 0;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body class="{% if domain_name %}has-result{% endif %}">
+
+
+<div class="page-shell">
+
+
+<!-- =========================================================
+     HEADER
+========================================================== -->
+
+<header class="hero {% if domain_name %}compact{% endif %}">
+
+
+<div class="hero-wrap">
+
+
+<div>
+
+
+<div class="hero-inner">
+
+
+<div class="shield"></div>
+
+
+<h1>
+DGA Domain Detector
+</h1>
+
+
+</div>
+
+
+<p class="hero-subtitle">
+
+Machine Learning-Based Detection of
+Malicious Domain Generation Algorithms
+
+</p>
+
+
+</div>
+
+
+<div class="engine-status">
+
+
+<span class="status-dot"></span>
+
+
+{% if domain_name %}
+
+Detection Engine Active
+
+{% else %}
+
+Detection Engine Ready
+
+{% endif %}
+
+
+</div>
+
+
+</div>
+
+
+</header>
+
+
+
+<!-- =========================================================
+     DOMAIN INPUT
+========================================================== -->
+
+<section class="panel search-panel">
+
+
+<div class="search-title">
+
+
+<span>
+⌕
+</span>
+
+
+<span>
+Analyze a Domain
+</span>
+
+
+</div>
+
+
+<p class="search-description">
+
+Enter a domain name to analyze
+
+</p>
+
+
+<form
+    method="POST"
+    class="domain-form"
+    id="domainForm"
+>
+
+
+<div class="input-wrap">
+
+
+<input
+    class="domain-input"
+    type="text"
+    name="domain"
+    value="{{ domain_name }}"
+    placeholder="e.g. google.com or ixrghbaytyaksgug.com"
+    autocomplete="off"
+    required
+>
+
+
+</div>
+
+
+<button
+    class="analyze-button"
+    type="submit"
+    id="analyzeButton"
+>
+
+⌕ &nbsp; Analyze Domain
+
+</button>
+
+
+</form>
+
+
+{% if not domain_name %}
+
+
+<div class="search-note">
+
+◇ &nbsp; Supports single-domain analysis
+
+</div>
+
+
+{% endif %}
+
+
+</section>
+
+
+
+<!-- =========================================================
+     ERROR
+========================================================== -->
+
+{% if error %}
+
+
+<div class="error-box">
+
+{{ error }}
+
+</div>
+
+
+{% endif %}
+
+
+
+<!-- =========================================================
+     HOME
+========================================================== -->
+
+{% if not domain_name %}
+
+
+<section class="home-stats">
+
+
+<article class="panel home-stat">
+
+
+<div class="stat-symbol">
+ML
+</div>
+
+
+<div>
+
+
+<div class="stat-top">
+
+
+<span class="stat-number">
+6
+</span>
+
+
+<span class="stat-label">
+ML / DL Models
+</span>
+
+
+</div>
+
+
+<p class="stat-copy">
+
+Multiple machine learning and deep learning
+models analyze the submitted domain.
+
+</p>
+
+
+</div>
+
+
+</article>
+
+
+
+<article class="panel home-stat">
+
+
+<div class="stat-symbol">
+FX
+</div>
+
+
+<div>
+
+
+<div class="stat-top">
+
+
+<span class="stat-number">
+10
+</span>
+
+
+<span class="stat-label">
+Lexical Features
+</span>
+
+
+</div>
+
+
+<p class="stat-copy">
+
+Ten lexical and statistical domain
+features support the detection pipeline.
+
+</p>
+
+
+</div>
+
+
+</article>
+
+
+
+<article class="panel home-stat">
+
+
+<div class="stat-symbol">
+FI
+</div>
+
+
+<div>
+
+
+<div class="stat-top">
+
+
+<span class="stat-number">
+Feature Information
+</span>
+
+
+</div>
+
+
+<p class="stat-copy">
+
+View real domain statistics and actual
+probabilities produced by every model.
+
+</p>
+
+
+</div>
+
+
+</article>
+
+
+</section>
+
+
+
+<section class="panel detector-panel">
+
+
+<div class="panel-heading">
+
+<span class="icon">
+▣
+</span>
+
+Detection Models
+
+</div>
+
+
+<div class="detector-list">
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+LR
+</div>
+
+<div class="detector-name">
+Logistic<br>
+Regression
+</div>
+
+</div>
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+RF
+</div>
+
+<div class="detector-name">
+Random<br>
+Forest
+</div>
+
+</div>
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+XG
+</div>
+
+<div class="detector-name">
+XGBoost<br>
+Lexical
+</div>
+
+</div>
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+NN
+</div>
+
+<div class="detector-name">
+Lexical Neural<br>
+Network
+</div>
+
+</div>
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+CNN
+</div>
+
+<div class="detector-name">
+Character<br>
+CNN
+</div>
+
+</div>
+
+
+<div class="detector-item">
+
+<div class="detector-badge">
+HY
+</div>
+
+<div class="detector-name">
+Hybrid CNN<br>
++ Lexical
+</div>
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+{% endif %}
+
+
+
+<!-- =========================================================
+     RESULTS
+========================================================== -->
+
+{% if domain_name and not error %}
+
+
+<main id="results">
+
+
+<!-- =========================================================
+     OVERALL RESULT
+========================================================== -->
+
+<section class="panel result-panel">
+
+
+<div class="panel-heading">
+
+<span class="icon">
+◉
+</span>
+
+Overall Detection Result
+
+</div>
+
+
+<div class="overall-grid">
+
+
+<!-- SCORE -->
+
+<div>
+
+
+<div
+    class="
+        score-ring
+
+        {% if prediction == 'BENIGN' %}
+        safe
+        {% endif %}
+    "
+
+    style="
+        --score: {{ threat_score }}%;
+    "
+>
+
+
+<div class="score-center">
+
+
+<div class="score-value">
+
+{{ threat_score }}%
+
+</div>
+
+
+<div class="score-label">
+
+DGA Score
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- FINAL DECISION -->
+
+<div>
+
+
+<div class="domain-result">
+
+{{ domain_name }}
+
+</div>
+
+
+<div
+    class="
+        decision
+
+        {% if prediction == 'BENIGN' %}
+        safe
+        {% endif %}
+    "
+>
+
+
+{% if prediction == "DGA" %}
+
+⚠ DGA DETECTED
+
+{% else %}
+
+✓ BENIGN DOMAIN
+
+{% endif %}
+
+
+</div>
+
+
+<p class="decision-copy">
+
+
+{% if prediction == "DGA" %}
+
+This domain is classified as a potentially
+algorithmically generated domain by the
+final validated ensemble detection engine.
+
+{% else %}
+
+This domain is classified as benign by the
+final validated ensemble detection engine.
+
+{% endif %}
+
+
+</p>
+
+
+<div class="consensus-box">
+
+
+Model Agreement
+
+
+<strong>
+
+{{ agreement_count }}
+/
+{{ model_count }}
+Models Agree
+
+</strong>
+
+
+</div>
+
+
+<div class="engine-copy">
+
+Final engine:
+{{ final_engine }}
+
+<br>
+
+Decision threshold:
+{{ threshold }}%
+
+</div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     DETECTION CONFIDENCE
+========================================================== -->
+
+<div class="confidence-box">
+
+
+<div class="confidence-title">
+
+DETECTION CONFIDENCE
+
+</div>
+
+
+<div class="confidence-layout">
+
+
+<!-- RADAR COLUMN -->
+
+<div class="radar-column">
+
+
+<div
+    class="
+        radar
+
+        {% if prediction == 'BENIGN' %}
+        safe
+        {% endif %}
+    "
+>
+
+
+<div class="radar-cross"></div>
+
+
+<div class="radar-core">
+
+
+{% if prediction == "DGA" %}
+
+!
+
+{% else %}
+
+✓
+
+{% endif %}
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- CURRENT RISK -->
+
+<div
+    class="
+        current-risk-card
+
+        {% if prediction == 'BENIGN' %}
+        safe
+        {% endif %}
+    "
+>
+
+
+<div class="current-risk-label">
+
+Current Risk
+
+</div>
+
+
+<div class="current-risk-value">
+
+{{ risk }}
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- RISK LEGEND -->
+
+<div class="risk-list">
+
+
+<div class="risk-line">
+
+
+<span class="risk-dot high"></span>
+
+
+<div>
+
+
+<span class="risk-name">
+
+High Risk
+
+</span>
+
+
+<span class="risk-range">
+
+70% - 100%
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="risk-line">
+
+
+<span class="risk-dot medium"></span>
+
+
+<div>
+
+
+<span class="risk-name">
+
+Medium Risk
+
+</span>
+
+
+<span class="risk-range">
+
+30% - 70%
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="risk-line">
+
+
+<span class="risk-dot low"></span>
+
+
+<div>
+
+
+<span class="risk-name">
+
+Low Risk
+
+</span>
+
+
+<span class="risk-range">
+
+0% - 30%
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     MULTI MODEL REPORT
+========================================================== -->
+
+<section class="panel model-report-panel">
+
+
+<div class="panel-heading">
+
+Multi-Model Detection Report
+
+</div>
+
+
+<div class="model-grid">
+
+
+{% for m in models %}
+
+
+<article
+    class="
+        model-card
+
+        {% if m.prediction == 'BENIGN' %}
+        model-safe
+
+        {% else %}
+        model-danger
+
+        {% endif %}
+    "
+>
+
+
+<div class="model-header">
+
+
+<div class="model-badge">
+
+{{ m.short }}
+
+</div>
+
+
+<div class="model-info">
+
+
+<div class="model-title">
+
+{{ m.model }}
+
+</div>
+
+
+<div class="model-input">
+
+{{ m.input }}
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="model-circle-wrap">
+
+
+<div
+    class="mini-ring"
+
+    style="
+        --score: {{ m.probability }}%;
+    "
+>
+
+
+<span>
+
+{{ m.probability }}%
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="model-decision">
+
+{{ m.prediction }}
+
+</div>
+
+
+<div class="model-probability-area">
+
+
+<div class="probability-label">
+
+
+<span>
+
+DGA Probability
+
+</span>
+
+
+<span>
+
+{{ m.probability }}%
+
+</span>
+
+
+</div>
+
+
+<div class="probability-track">
+
+
+<div
+    class="probability-fill"
+
+    style="
+        width: {{ m.probability }}%;
+    "
+>
+</div>
+
+
+</div>
+
+
+<button
+    type="button"
+
+    class="details-button"
+
+    onclick="
+        openModelDetails(
+            {{ loop.index0 }}
+        )
+    "
+>
+
+View Details →
+
+</button>
+
+
+</div>
+
+
+</article>
+
+
+{% endfor %}
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     FEATURES + COMPARISON
+========================================================== -->
+
+<div class="analysis-grid">
+
+
+<!-- =========================================================
+     FEATURES
+========================================================== -->
+
+<section class="panel analysis-panel">
+
+
+<div class="panel-heading">
+
+Domain Feature Analysis
+
+</div>
+
+
+<!-- FIRST 8 -->
+
+<div class="feature-summary-grid">
+
+
+{% for feature in feature_info %}
+
+
+{% if loop.index <= 8 %}
+
+
+<div class="feature-line">
+
+
+<span>
+
+{{ feature.label }}
+
+</span>
+
+
+<strong>
+
+{{ feature.value }}
+
+</strong>
+
+
+</div>
+
+
+{% endif %}
+
+
+{% endfor %}
+
+
+</div>
+
+
+
+<!-- REMAINING FEATURES -->
+
+{% if feature_info|length > 8 %}
+
+
+<div
+    class="remaining-feature-grid"
+    id="remainingFeatures"
+>
+
+
+{% for feature in feature_info %}
+
+
+{% if loop.index > 8 %}
+
+
+<div class="feature-line">
+
+
+<span>
+
+{{ feature.label }}
+
+</span>
+
+
+<strong>
+
+{{ feature.value }}
+
+</strong>
+
+
+</div>
+
+
+{% endif %}
+
+
+{% endfor %}
+
+
+</div>
+
+
+
+<div class="feature-toggle-wrap">
+
+
+<button
+    type="button"
+
+    class="feature-toggle-button"
+
+    id="featureToggleButton"
+
+    onclick="
+        toggleRemainingFeatures()
+    "
+>
+
+View All 10 Features ↓
+
+</button>
+
+
+</div>
+
+
+{% endif %}
+
+
+</section>
+
+
+
+<!-- =========================================================
+     MODEL COMPARISON
+========================================================== -->
+
+<section class="panel analysis-panel">
+
+
+<div class="panel-heading">
+
+Model Confidence Comparison
+
+</div>
+
+
+<div class="comparison-list">
+
+
+{% for m in models %}
+
+
+<div
+    class="
+        comparison-row
+
+        {% if m.prediction == 'BENIGN' %}
+        safe
+
+        {% else %}
+        danger
+
+        {% endif %}
+    "
+>
+
+
+<div class="comparison-name">
+
+{{ m.model }}
+
+</div>
+
+
+<div class="comparison-track">
+
+
+<div
+    class="comparison-fill"
+
+    style="
+        width: {{ m.probability }}%;
+    "
+>
+</div>
+
+
+</div>
+
+
+<div class="comparison-score">
+
+{{ m.probability }}%
+
+</div>
+
+
+</div>
+
+
+{% endfor %}
+
+
+</div>
+
+
+<div class="axis">
+
+<span>0%</span>
+
+<span>25%</span>
+
+<span>50%</span>
+
+<span>75%</span>
+
+<span>100%</span>
+
+</div>
+
+
+<div class="axis-label">
+
+DGA Probability (%)
+
+</div>
+
+
+</section>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     STATUS
+========================================================== -->
+
+<section class="bottom-status">
+
+
+<div class="bottom-item">
+
+
+<div class="bottom-icon">
+ML
+</div>
+
+
+<div>
+
+
+<div class="bottom-label">
+
+Detection Engine
+
+</div>
+
+
+<div class="bottom-value">
+
+6 ML / DL Models
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="bottom-item">
+
+
+<div class="bottom-icon">
+FX
+</div>
+
+
+<div>
+
+
+<div class="bottom-label">
+
+Feature Extraction
+
+</div>
+
+
+<div class="bottom-value">
+
+10 Lexical Features
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="bottom-item">
+
+
+<div class="bottom-icon">
+EN
+</div>
+
+
+<div>
+
+
+<div class="bottom-label">
+
+Final Ensemble
+
+</div>
+
+
+<div class="bottom-value">
+
+LR 50% + Hybrid CNN 50%
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="bottom-item">
+
+
+<div class="bottom-icon">
+✓
+</div>
+
+
+<div>
+
+
+<div class="bottom-label">
+
+System Status
+
+</div>
+
+
+<div class="bottom-value success">
+
+Analysis Complete
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+</main>
+
+
+{% endif %}
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================== -->
+
+<footer class="footer">
+
+◇ Team SaFa • Final Year Project • Unseen-Family DGA Domain Detection ◇
+
+</footer>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     MODEL DETAILS MODAL
+========================================================== -->
+
+{% if domain_name and models %}
+
+
+<div
+    class="modal-backdrop"
+
+    id="modelModal"
+
+    onclick="
+        closeModalOnBackdrop(event)
+    "
+>
+
+
+<div class="modal">
+
+
+<div class="modal-header">
+
+
+<div
+    class="modal-title"
+
+    id="modalTitle"
+>
+
+Model Detailed Analysis
+
+</div>
+
+
+<button
+    type="button"
+
+    class="modal-close"
+
+    onclick="
+        closeModelDetails()
+    "
+>
+
+×
+
+</button>
+
+
+</div>
+
+
+<div class="modal-body">
+
+
+<section class="modal-section">
+
+
+<div class="modal-section-title">
+
+PREDICTION SUMMARY
+
+</div>
+
+
+<div class="modal-data-row">
+
+
+<span>
+Prediction
+</span>
+
+
+<strong id="modalPrediction">
+-
+</strong>
+
+
+</div>
+
+
+<div class="modal-data-row">
+
+
+<span>
+DGA Probability
+</span>
+
+
+<strong id="modalProbability">
+-
+</strong>
+
+
+</div>
+
+
+<div class="modal-data-row">
+
+
+<span>
+Model Type
+</span>
+
+
+<strong id="modalType">
+-
+</strong>
+
+
+</div>
+
+
+<div class="modal-data-row">
+
+
+<span>
+Model Input
+</span>
+
+
+<strong id="modalInput">
+-
+</strong>
+
+
+</div>
+
+
+<div class="modal-data-row">
+
+<span>
+Decision Threshold
+</span>
+
+<strong id="modalThreshold">
+{{ threshold }}%
+</strong>
+
+</div>
+
+
+</section>
+
+
+
+<section class="modal-section">
+
+
+<div class="modal-section-title">
+
+OBSERVED DOMAIN SIGNALS
+
+</div>
+
+
+<ul
+    class="signal-list"
+
+    id="modalSignals"
+>
+</ul>
+
+
+<p class="signal-note">
+
+These values come directly from the actual
+domain preprocessing and feature extraction
+pipeline. They are descriptive domain signals
+and are not presented as SHAP or LIME feature
+importance values.
+
+</p>
+
+
+</section>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+{% endif %}
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
+
+<script>
+
+
+/* ==========================================================
+   ANALYZE BUTTON
+========================================================== */
+
+const form =
+    document.getElementById(
+        "domainForm"
+    );
+
+
+const analyzeButton =
+    document.getElementById(
+        "analyzeButton"
+    );
+
+
+if (form) {
+
+
+    form.addEventListener(
+        "submit",
+        function () {
+
+
+            analyzeButton.disabled =
+                true;
+
+
+            analyzeButton.textContent =
+                "Analyzing Domain...";
+
+
+        }
+    );
+
+
+}
+
+
+
+/* ==========================================================
+   FEATURE TOGGLE
+========================================================== */
+
+function toggleRemainingFeatures() {
+
+
+    const featureBox =
+        document.getElementById(
+            "remainingFeatures"
+        );
+
+
+    const button =
+        document.getElementById(
+            "featureToggleButton"
+        );
+
+
+    if (
+        !featureBox ||
+        !button
+    ) {
+
+        return;
+
+    }
+
+
+    const isOpen =
+        featureBox.classList.contains(
+            "show"
+        );
+
+
+    if (isOpen) {
+
+
+        featureBox.classList.remove(
+            "show"
+        );
+
+
+        button.textContent =
+            "View All 10 Features ↓";
+
+
+    } else {
+
+
+        featureBox.classList.add(
+            "show"
+        );
+
+
+        button.textContent =
+            "Hide Additional Features ↑";
+
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   MODEL DETAILS
+========================================================== */
+
+{% if domain_name and models %}
+
+
+const modelResults =
+    {{ models | tojson }};
+
+
+const domainSignals =
+    {{ signals | tojson }};
+
+
+
+function openModelDetails(index) {
+
+
+    const model =
+        modelResults[index];
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        model.model
+        +
+        " — Detailed Analysis";
+
+
+    const predictionElement =
+        document.getElementById(
+            "modalPrediction"
+        );
+
+
+    predictionElement.textContent =
+        model.prediction;
+
+
+    predictionElement.classList.remove(
+        "modal-safe",
+        "modal-danger"
+    );
+
+
+    if (
+        model.prediction === "BENIGN"
+    ) {
+
+
+        predictionElement.classList.add(
+            "modal-safe"
+        );
+
+
+    } else {
+
+
+        predictionElement.classList.add(
+            "modal-danger"
+        );
+
+
+    }
+
+
+    document.getElementById(
+        "modalProbability"
+    ).textContent =
+        model.probability
+        +
+        "%";
+
+
+    document.getElementById(
+        "modalType"
+    ).textContent =
+        model.type;
+
+
+    document.getElementById(
+        "modalInput"
+    ).textContent =
+        model.input;
+
+    document.getElementById(
+        "modalThreshold"
+    ).textContent =
+        model.threshold + "%";        
+
+    const signalContainer =
+        document.getElementById(
+            "modalSignals"
+        );
+
+
+    signalContainer.innerHTML =
+        "";
+
+
+    domainSignals.forEach(
+        function(signal) {
+
+
+            const item =
+                document.createElement(
+                    "li"
+                );
+
+
+            item.textContent =
+                signal;
+
+
+            signalContainer.appendChild(
+                item
+            );
+
+
+        }
+    );
+
+
+    document.getElementById(
+        "modelModal"
+    ).classList.add(
+        "open"
+    );
+
+
+}
+
+
+
+function closeModelDetails() {
+
+
+    document.getElementById(
+        "modelModal"
+    ).classList.remove(
+        "open"
+    );
+
+
+}
+
+
+
+function closeModalOnBackdrop(event) {
+
+
+    if (
+        event.target.id
+        ===
+        "modelModal"
+    ) {
+
+
+        closeModelDetails();
+
+
+    }
+
+
+}
+
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+
+        if (
+            event.key === "Escape"
+        ) {
+
+
+            closeModelDetails();
+
+
+        }
+
+
+    }
+);
+
+
+{% endif %}
+
+
+</script>
+
+
+</body>
+
+</html>

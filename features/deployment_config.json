@@ -1,0 +1,22 @@
+{
+    "max_len": 31,
+    "lexical_feature_count": 10,
+    "lexical_features": [
+        "domain_length",
+        "digit_count",
+        "digit_ratio",
+        "vowel_ratio",
+        "consonant_ratio",
+        "max_consecutive_consonant",
+        "max_consecutive_digit",
+        "entropy",
+        "special_character_count",
+        "special_character_ratio"
+    ],
+    "weighted_hybrid_threshold": 0.2,
+    "ensemble": {
+        "lr_weight": 0.5,
+        "cnn_weight": 0.5,
+        "threshold": 0.5
+    }
+}
